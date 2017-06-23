@@ -117,7 +117,7 @@ public class SchoolServer extends AbstractServer
 
 			sql = "SELECT  " + arr.get(0) + " FROM " + arr.get(1);
 			
-			if (arr.size() > 1)
+			if (arr.size() > 2)
 			{
 				sql += " WHERE ";
 				for (int i = 1; i < arr.size(); i += 2)
@@ -180,7 +180,7 @@ public class SchoolServer extends AbstractServer
 			}
 
 			sql = "SELECT * FROM " + arr.get(0);
-			if (arr.size() > 1)
+			if (arr.size() > 2)
 			{
 				sql += " WHERE ";
 				for (int i = 1; i < arr.size(); i += 2)
