@@ -17,22 +17,26 @@ import java.util.List;
 
 import ocsf.*;
 
-public class SchoolServer extends AbstractServer {
+public class SchoolServer extends AbstractServer
+{
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 	private static final File ASSIGNMENTS_DIR = new File("assignments");
 	final public static int DEFAULT_PORT = 5556;
 	ArrayList<String> arr;
 
-	public SchoolServer(int port) {
+	public SchoolServer(int port)
+	{
 		super(port);
 
 		// Create the directory if it doesn't exist.
-		if (!ASSIGNMENTS_DIR.exists()) {
+		if (!ASSIGNMENTS_DIR.exists())
+		{
 			ASSIGNMENTS_DIR.mkdir();
 		}
 	}
 
-	private void addAssignment(ArrayList<?> msg, ConnectionToClient client) {
+	private void addAssignment(ArrayList<?> msg, ConnectionToClient client)
+	{
 		System.out.println("Adding assignment");
 		LocalDateTime dueDate = (LocalDateTime) msg.get(1);
 		String courseID = (String) msg.get(2);
@@ -48,10 +52,13 @@ public class SchoolServer extends AbstractServer {
 
 		File output = new File(ASSIGNMENTS_DIR, randomFileName);
 
-		try {
+		try
+		{
 			System.out.println("Writing file");
 			Files.write(output.toPath(), fileContents);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			System.out.println("Add assignment failed (can't write file)");
 			e.printStackTrace();
 
@@ -78,14 +85,19 @@ public class SchoolServer extends AbstractServer {
 		System.out.println("OK!");
 	}
 
-	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
+	public void handleMessageFromClient(Object msg, ConnectionToClient client)
+	{
 		/************************************************ Checks *************************************************/
 		System.out.println("Request received from " + client);
 		Object response = null;
-		if (!(msg instanceof ArrayList<?>) || ((ArrayList<?>) msg).size() < 3) {
-			try {
+		if (!(msg instanceof ArrayList<?>) || ((ArrayList<?>) msg).size() < 3)
+		{
+			try
+			{
 				client.sendToClient(null);
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 			return;
@@ -93,11 +105,15 @@ public class SchoolServer extends AbstractServer {
 
 		ArrayList<?> rawMessage = (ArrayList<?>) msg;
 
-		if (rawMessage.get(0).equals("add assignment")) {
+		if (rawMessage.get(0).equals("add assignment"))
+		{
 			// TODO remove this try-catch
-			try {
+			try
+			{
 				addAssignment(rawMessage, client);
-			} catch (RuntimeException e) {
+			}
+			catch (RuntimeException e)
+			{
 				System.out.println("Something went wrong");
 				e.printStackTrace(System.out);
 			}
@@ -113,203 +129,260 @@ public class SchoolServer extends AbstractServer {
 		String clientId = arr.remove(0);
 		String query = arr.remove(0);
 
-		if (query.equals("select")) {
+		if (query.equals("select"))
+		{
 			response = select(arr);
-		} else if (query.equals("update")) {
+		}
+		else if (query.equals("update"))
+		{
 			response = update(arr);
-		} else if (query.equals("insert")) {
+		}
+		else if (query.equals("insert"))
+		{
 			response = insert(arr);
-		} else if (query.equals("delete")) {
+		}
+		else if (query.equals("delete"))
+		{
 			response = delete(arr);
-		} else if (query.equals("select field")) {
+		}
+		else if (query.equals("select field"))
+		{
 			response = selectField(arr);
 		}
 
 		/************************************************
 		 * Send to Client
 		 ******************************************/
-		try {
+		try
+		{
 			if (response != null)
 				((ArrayList<String>) response).add(0, clientId);
 			client.sendToClient(response);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	protected void serverStarted() {
+	protected void serverStarted()
+	{
 		System.out.println("Server listening for connections on port " + getPort());
 	}
 
-	protected void serverStopped() {
+	protected void serverStopped()
+	{
 		System.out.println("Server has stopped listening for connections.");
 	}
 
-	private void executeInsert(String sql, String... arguments) {
-		try {
+	private void executeInsert(String sql, String... arguments)
+	{
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 			return;
 		}
 
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			for (int i = 0; i < arguments.length; i++) {
+			for (int i = 0; i < arguments.length; i++)
+			{
 				stmt.setString(i + 1, arguments[i]);
 			}
 
 			System.out.println("Executing INSERT");
 			stmt.executeUpdate();
-		} catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace(System.out);
 			System.out.println("Insert failed! " + e);
 		}
 
 	}
 
-	protected Object selectField(ArrayList<String> arr) {
+	protected Object selectField(ArrayList<String> arr)
+	{
 		Statement stmt;
 		String sql = "";
 		ArrayList<String> answer = new ArrayList<>();
-		try {
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 		}
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			stmt = conn.createStatement();
 
-			if (arr.size() == 0) {
+			if (arr.size() == 0)
+			{
 				// error handling
 				return null;
 			}
 
 			sql = "SELECT  " + arr.get(0) + " FROM " + arr.get(1);
 
-
-			if (arr.size() > 1) {
-
-			
-			if (arr.size() > 2)
+			if (arr.size() > 1)
 			{
-				sql += " WHERE ";
-				for (int i = 1; i < arr.size(); i += 2) {
-					sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
-					if (i + 2 < arr.size())
-						sql += "AND ";
 
+				if (arr.size() > 2)
+				{
+					sql += " WHERE ";
+					for (int i = 1; i < arr.size(); i += 2)
+					{
+						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
+						if (i + 2 < arr.size())
+							sql += "AND ";
+
+					}
+				}
+				sql += ";";
+				System.out.println("\nSQL: " + sql + "\n");
+				ResultSet rs = stmt.executeQuery(sql);
+				// need to change "is Logged" field!!!
+
+				ResultSetMetaData metaData = rs.getMetaData();
+				int count = metaData.getColumnCount(); // number of column
+
+				while (rs.next())
+				{
+					String row = "";
+					for (int i = 1; i <= count; i++)
+					{
+						row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
+					}
+					if (row.endsWith(";"))
+						row = row.substring(0, row.length() - 1);
+					answer.add(row);
 				}
 			}
-			sql += ";";
-			System.out.println("\nSQL: " + sql + "\n");
-			ResultSet rs = stmt.executeQuery(sql);
-			// need to change "is Logged" field!!!
-
-			ResultSetMetaData metaData = rs.getMetaData();
-			int count = metaData.getColumnCount(); // number of column
-
-			while (rs.next()) {
-				String row = "";
-				for (int i = 1; i <= count; i++) {
-					row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
-				}
-				if (row.endsWith(";"))
-					row = row.substring(0, row.length() - 1);
-				answer.add(row);
-			}
-		} }catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 		return answer;
 	}
 
-	protected Object select(ArrayList<String> arr) {
+	protected Object select(ArrayList<String> arr)
+	{
 		Statement stmt;
 		String sql = "";
 		ArrayList<String> answer = new ArrayList<>();
-		try {
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 		}
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			stmt = conn.createStatement();
 
-			if (arr.size() == 0) {
+			if (arr.size() == 0)
+			{
 				// error handling
 				return null;
 			}
 
 			sql = "SELECT * FROM " + arr.get(0);
 
-			if (arr.size() > 1) {
-
-			if (arr.size() > 3)
+			if (arr.size() > 1)
 			{
 
-				sql += " WHERE ";
-				for (int i = 1; i < arr.size(); i += 2) {
-					sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
-					if (i + 2 < arr.size())
-						sql += "AND ";
+				if (arr.size() > 3)
+				{
 
+					sql += " WHERE ";
+					for (int i = 1; i < arr.size(); i += 2)
+					{
+						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
+						if (i + 2 < arr.size())
+							sql += "AND ";
+
+					}
+				}
+				sql += ";";
+				System.out.println("\nSQL: " + sql + "\n");
+				ResultSet rs = stmt.executeQuery(sql);
+				// need to change "is Logged" field!!!
+
+				ResultSetMetaData metaData = rs.getMetaData();
+				int count = metaData.getColumnCount(); // number of column
+
+				while (rs.next())
+				{
+					String row = "";
+					for (int i = 1; i <= count; i++)
+					{
+						row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
+					}
+					if (row.endsWith(";"))
+						row = row.substring(0, row.length() - 1);
+					answer.add(row);
 				}
 			}
-			sql += ";";
-			System.out.println("\nSQL: " + sql + "\n");
-			ResultSet rs = stmt.executeQuery(sql);
-			// need to change "is Logged" field!!!
-
-			ResultSetMetaData metaData = rs.getMetaData();
-			int count = metaData.getColumnCount(); // number of column
-
-			while (rs.next()) {
-				String row = "";
-				for (int i = 1; i <= count; i++) {
-					row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
-				}
-				if (row.endsWith(";"))
-					row = row.substring(0, row.length() - 1);
-				answer.add(row);
-			}
-		} }catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		return answer;
 	}
 
-	protected Object update(ArrayList<String> arr) {
+	protected Object update(ArrayList<String> arr)
+	{
 		Statement stmt;
 		String sql = "";
 		int index = 0;
 		ArrayList<String> answer = new ArrayList<>();
-		try {
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 		}
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			stmt = conn.createStatement();
 
-			if (arr.size() == 0) {
+			if (arr.size() == 0)
+			{
 				// error handling
 				return null;
 			}
 
 			sql = "UPDATE " + arr.get(0);
-			if (arr.size() >= 6) {
+			if (arr.size() >= 6)
+			{
 				sql += " SET ";
-				for (int i = 1; i < arr.size(); i += 2) {
-					if (arr.get(i).equals("conditions")) {
+				for (int i = 1; i < arr.size(); i += 2)
+				{
+					if (arr.get(i).equals("conditions"))
+					{
 						index = i + 1;
 						break;
-					} else {
+					}
+					else
+					{
 						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 						if (i + 2 < arr.size())
 							sql += ", ";
@@ -317,14 +390,18 @@ public class SchoolServer extends AbstractServer {
 				}
 				if (sql.endsWith(", "))
 					sql = sql.substring(0, sql.length() - 2);
-				if (index != 0) {
+				if (index != 0)
+				{
 					sql += " WHERE ";
-					for (int i = index; i < arr.size(); i += 2) {
+					for (int i = index; i < arr.size(); i += 2)
+					{
 						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 						if (i + 2 < arr.size())
 							sql += "AND ";
 					}
-				} else {
+				}
+				else
+				{
 					System.out.println("Error - No Condition for WHERE");
 					return null;
 				}
@@ -334,34 +411,44 @@ public class SchoolServer extends AbstractServer {
 			System.out.println("\nSQL: " + sql + "\n");
 			int rs = stmt.executeUpdate(sql);
 			answer.add("" + rs);
-		} catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 		return answer;
 	}
 
-	protected Object delete(ArrayList<String> arr) {
+	protected Object delete(ArrayList<String> arr)
+	{
 		Statement stmt;
 		String sql = "";
 		ArrayList<String> answer = new ArrayList<>();
-		try {
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 		}
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			stmt = conn.createStatement();
 
-			if (arr.size() == 0) {
+			if (arr.size() == 0)
+			{
 				// error handling
 				return null;
 			}
 
 			sql = "DELETE FROM " + arr.get(0);
-			if (arr.size() >= 3) {
+			if (arr.size() >= 3)
+			{
 				sql += " WHERE ";
-				for (int i = 1; i < arr.size(); i += 2) {
+				for (int i = 1; i < arr.size(); i += 2)
+				{
 					sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 					if (i + 2 < arr.size())
 						sql += "AND ";
@@ -372,51 +459,67 @@ public class SchoolServer extends AbstractServer {
 			int rs = stmt.executeUpdate(sql);
 			answer.add("" + rs);
 
-		} catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 		return answer;
 	}
 
-	protected Object insert(ArrayList<String> arr) {
+	protected Object insert(ArrayList<String> arr)
+	{
 		Statement stmt;
 		String sql = "";
 		ArrayList<String> answer = new ArrayList<>();
 		int index = 0;
-		try {
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("Error - connection to DB");
 		}
-		try {
+		try
+		{
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/school", "root", "admin");
 			stmt = conn.createStatement();
 
-			if (arr.size() == 0) {
+			if (arr.size() == 0)
+			{
 				// error handling
 				return null;
 			}
 
 			sql = "INSERT INTO " + arr.get(0);
-			if (arr.size() >= 4) {
+			if (arr.size() >= 4)
+			{
 				sql += " (";
-				for (int i = 1; i < arr.size(); i++) {
-					if (arr.get(i).equals("values")) {
+				for (int i = 1; i < arr.size(); i++)
+				{
+					if (arr.get(i).equals("values"))
+					{
 						index = i + 1;
 						break;
-					} else {
+					}
+					else
+					{
 						sql += arr.get(i) + ", ";
 					}
 				}
-				if (sql.endsWith(", ")) {
+				if (sql.endsWith(", "))
+				{
 					sql = sql.substring(0, sql.length() - 2);
 					sql += ")";
 				}
 				sql += " VALUES (";
-				for (int i = index; i < arr.size(); i++) {
+				for (int i = index; i < arr.size(); i++)
+				{
 					sql += "\"" + arr.get(i) + "\", ";
 				}
-				if (sql.endsWith(", ")) {
+				if (sql.endsWith(", "))
+				{
 					sql = sql.substring(0, sql.length() - 2);
 					sql += ")";
 				}
@@ -425,23 +528,30 @@ public class SchoolServer extends AbstractServer {
 			System.out.println("\nSQL: " + sql + "\n");
 			int rs = stmt.executeUpdate(sql);
 			answer.add("" + rs);
-		} catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 		return answer;
 	}
 
-	protected void clientConnected(ConnectionToClient client) {
+	protected void clientConnected(ConnectionToClient client)
+	{
 		System.out.println("Client " + client.getId() + " connected, " + getNumberOfClients() + " clients are online");
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException
+	{
 		int port = DEFAULT_PORT;
 
 		SchoolServer sv = new SchoolServer(port);
-		try {
+		try
+		{
 			sv.listen();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.out.println("ERROR - Could not listen for clients!");
 		}
 	}
