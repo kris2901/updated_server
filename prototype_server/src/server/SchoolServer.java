@@ -239,7 +239,7 @@ public class SchoolServer extends AbstractServer
 				if (arr.size() > 2)
 				{
 					sql += " WHERE ";
-					for (int i = 1; i < arr.size(); i += 2)
+					for (int i = 2; i < arr.size(); i += 2)
 					{
 						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 						if (i + 2 < arr.size())
@@ -300,22 +300,19 @@ public class SchoolServer extends AbstractServer
 			}
 
 			sql = "SELECT * FROM " + arr.get(0);
-
 			if (arr.size() > 1)
 			{
-
-				if (arr.size() > 3)
+				if (arr.size() > 2)
 				{
-
 					sql += " WHERE ";
 					for (int i = 1; i < arr.size(); i += 2)
 					{
 						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 						if (i + 2 < arr.size())
 							sql += "AND ";
-
 					}
 				}
+
 				sql += ";";
 				System.out.println("\nSQL: " + sql + "\n");
 				ResultSet rs = stmt.executeQuery(sql);
@@ -371,7 +368,7 @@ public class SchoolServer extends AbstractServer
 			}
 
 			sql = "UPDATE " + arr.get(0);
-			if (arr.size() >= 6)
+			if (arr.size() > 1)
 			{
 				sql += " SET ";
 				for (int i = 1; i < arr.size(); i += 2)
