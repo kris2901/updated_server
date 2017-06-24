@@ -188,14 +188,13 @@ public class SchoolServer extends AbstractServer {
 			}
 
 			sql = "SELECT  " + arr.get(0) + " FROM " + arr.get(1);
-<<<<<<< HEAD
+
 
 			if (arr.size() > 1) {
-=======
+
 			
 			if (arr.size() > 2)
 			{
->>>>>>> branch 'master' of https://github.com/kris2901/updated_server.git
 				sql += " WHERE ";
 				for (int i = 1; i < arr.size(); i += 2) {
 					sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
@@ -246,12 +245,12 @@ public class SchoolServer extends AbstractServer {
 			}
 
 			sql = "SELECT * FROM " + arr.get(0);
-<<<<<<< HEAD
+
 			if (arr.size() > 1) {
-=======
+
 			if (arr.size() > 3)
 			{
->>>>>>> branch 'master' of https://github.com/kris2901/updated_server.git
+
 				sql += " WHERE ";
 				for (int i = 1; i < arr.size(); i += 2) {
 					sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
