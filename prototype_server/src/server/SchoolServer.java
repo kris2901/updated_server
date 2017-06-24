@@ -220,7 +220,7 @@ public class SchoolServer extends AbstractServer {
 					row = row.substring(0, row.length() - 1);
 				answer.add(row);
 			}
-		} catch (SQLException e) {
+		} }catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return answer;
@@ -276,9 +276,10 @@ public class SchoolServer extends AbstractServer {
 					row = row.substring(0, row.length() - 1);
 				answer.add(row);
 			}
-		} catch (SQLException e) {
+		} }catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
 		return answer;
 	}
 
