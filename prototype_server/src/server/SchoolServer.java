@@ -300,7 +300,7 @@ public class SchoolServer extends AbstractServer
 			}
 
 			sql = "SELECT * FROM " + arr.get(0);
-			if (arr.size() > 1)
+			if (arr.size() >= 1)
 			{
 				if (arr.size() > 2)
 				{
