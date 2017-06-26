@@ -149,19 +149,18 @@ public class SchoolServer extends AbstractServer
 		{
 			response = selectField(arr);
 		}
-		else if(query.equals("histogram 1"))
+		else if (query.equals("histogram 1"))
 		{
 			response = histogram1(arr);
 		}
-		else if(query.equals("histogram 2"))
+		else if (query.equals("histogram 2"))
 		{
 			response = histogram2(arr);
 		}
-		else if(query.equals("histogram 3"))
+		else if (query.equals("histogram 3"))
 		{
 			response = histogram3(arr);
 		}
-		
 
 		/************************************************
 		 * Send to Client
@@ -355,10 +354,6 @@ public class SchoolServer extends AbstractServer
 		return answer;
 	}
 
-
-	
-	
-
 	protected Object histogram1(ArrayList<String> arr)
 	{
 		Statement stmt;
@@ -383,35 +378,35 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.classId, AVG(P.gradeInCourse) AS avgGrade " +
-				  " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " +
-				  " WHERE CC.teacherId=" + arr.remove(0) + " AND (";
-			for(int i=0;i<arr.size();i++)
-				sql+= "S.SemesterID=" + arr.get(i) + " OR ";
-			
-			if(sql.endsWith("OR "))
-				sql = sql.substring(0, sql.length()-3);
-			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " +
-				  " GROUP BY CC.classId;";
+			sql = "SELECT S.SemesterID, CC.classId, AVG(P.gradeInCourse) AS avgGrade "
+					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.teacherId="
+					+ arr.remove(0) + " AND (";
 
-				System.out.println("\nSQL: " + sql + "\n");
-				ResultSet rs = stmt.executeQuery(sql);
-				// need to change "is Logged" field!!!
+			for (int i = 0; i < arr.size(); i++)
+				sql += "S.SemesterID=" + arr.get(i) + " OR ";
 
-				ResultSetMetaData metaData = rs.getMetaData();
-				int count = metaData.getColumnCount(); // number of column
+			if (sql.endsWith("OR "))
+				sql = sql.substring(0, sql.length() - 3);
+			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " + " GROUP BY CC.classId;";
 
-				while (rs.next())
+			System.out.println("\nSQL: " + sql + "\n");
+			ResultSet rs = stmt.executeQuery(sql);
+			// need to change "is Logged" field!!!
+
+			ResultSetMetaData metaData = rs.getMetaData();
+			int count = metaData.getColumnCount(); // number of column
+
+			while (rs.next())
+			{
+				String row = "";
+				for (int i = 1; i <= count; i++)
 				{
-					String row = "";
-					for (int i = 1; i <= count; i++)
-					{
-						row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
-					}
-					if (row.endsWith(";"))
-						row = row.substring(0, row.length() - 1);
-					answer.add(row);
+					row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
 				}
+				if (row.endsWith(";"))
+					row = row.substring(0, row.length() - 1);
+				answer.add(row);
+			}
 		}
 		catch (SQLException e)
 		{
@@ -420,8 +415,7 @@ public class SchoolServer extends AbstractServer
 
 		return answer;
 	}
-	
-	
+
 	protected Object histogram2(ArrayList<String> arr)
 	{
 		Statement stmt;
@@ -446,29 +440,36 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.teacherId, AVG(P.gradeInCourse) AS avgGrade " +
-					" FROM course_in_class CC, activity_in_semester S, pupil_in_course P " +
-					" WHERE CC.classId=" + arr.get(0) + " AND S.SemesterID=" + arr.get(1) + " AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " +
-					" GROUP BY CC.teacherId;";
+			sql = "SELECT S.SemesterID, CC.teacherId, AVG(P.gradeInCourse) AS avgGrade "
+					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.classId="
+					+ arr.get(0) + " AND (";
 
-				System.out.println("\nSQL: " + sql + "\n");
-				ResultSet rs = stmt.executeQuery(sql);
-				// need to change "is Logged" field!!!
+			for (int i = 0; i < arr.size(); i++)
+				sql += "S.SemesterID=" + arr.get(i) + " OR ";
 
-				ResultSetMetaData metaData = rs.getMetaData();
-				int count = metaData.getColumnCount(); // number of column
+			if (sql.endsWith("OR "))
+				sql = sql.substring(0, sql.length() - 3);
 
-				while (rs.next())
+			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " + " GROUP BY CC.teacherId;";
+
+			System.out.println("\nSQL: " + sql + "\n");
+			ResultSet rs = stmt.executeQuery(sql);
+			// need to change "is Logged" field!!!
+
+			ResultSetMetaData metaData = rs.getMetaData();
+			int count = metaData.getColumnCount(); // number of column
+
+			while (rs.next())
+			{
+				String row = "";
+				for (int i = 1; i <= count; i++)
 				{
-					String row = "";
-					for (int i = 1; i <= count; i++)
-					{
-						row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
-					}
-					if (row.endsWith(";"))
-						row = row.substring(0, row.length() - 1);
-					answer.add(row);
+					row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
 				}
+				if (row.endsWith(";"))
+					row = row.substring(0, row.length() - 1);
+				answer.add(row);
+			}
 		}
 		catch (SQLException e)
 		{
@@ -477,8 +478,7 @@ public class SchoolServer extends AbstractServer
 
 		return answer;
 	}
-	
-	
+
 	protected Object histogram3(ArrayList<String> arr)
 	{
 		Statement stmt;
@@ -503,29 +503,36 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.courseId, AVG(P.gradeInCourse) AS avgGrade " +
-				  " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + 
-				  " WHERE CC.classId=" + arr.get(0) + " AND S.SemesterID=" + arr.get(1) +" AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " +
-				  " GROUP BY CC.courseId;" ;
+			sql = "SELECT S.SemesterID, CC.courseId, AVG(P.gradeInCourse) AS avgGrade "
+					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.classId="
+					+ arr.get(0) + " AND (";
 
-				System.out.println("\nSQL: " + sql + "\n");
-				ResultSet rs = stmt.executeQuery(sql);
-				// need to change "is Logged" field!!!
+			for (int i = 0; i < arr.size(); i++)
+				sql += "S.SemesterID=" + arr.get(i) + " OR ";
 
-				ResultSetMetaData metaData = rs.getMetaData();
-				int count = metaData.getColumnCount(); // number of column
+			if (sql.endsWith("OR "))
+				sql = sql.substring(0, sql.length() - 3);
 
-				while (rs.next())
+			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " + " GROUP BY CC.courseId;";
+
+			System.out.println("\nSQL: " + sql + "\n");
+			ResultSet rs = stmt.executeQuery(sql);
+			// need to change "is Logged" field!!!
+
+			ResultSetMetaData metaData = rs.getMetaData();
+			int count = metaData.getColumnCount(); // number of column
+
+			while (rs.next())
+			{
+				String row = "";
+				for (int i = 1; i <= count; i++)
 				{
-					String row = "";
-					for (int i = 1; i <= count; i++)
-					{
-						row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
-					}
-					if (row.endsWith(";"))
-						row = row.substring(0, row.length() - 1);
-					answer.add(row);
+					row += metaData.getColumnLabel(i) + "=" + rs.getString(i) + ";";
 				}
+				if (row.endsWith(";"))
+					row = row.substring(0, row.length() - 1);
+				answer.add(row);
+			}
 		}
 		catch (SQLException e)
 		{
@@ -534,12 +541,7 @@ public class SchoolServer extends AbstractServer
 
 		return answer;
 	}
-	
-	
-	
-	
 
-	
 	protected Object update(ArrayList<String> arr)
 	{
 		Statement stmt;
