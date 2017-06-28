@@ -445,9 +445,9 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.teacherId, AVG(P.gradeInCourse) AS avgGrade "
+			sql = "SELECT CC.teacherId, AVG(P.gradeInCourse) AS avgGrade "
 					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.classId="
-					+ arr.get(0) + " AND (";
+					+ arr.remove(0) + " AND (";
 
 			for (int i = 0; i < arr.size(); i++)
 				sql += "S.SemesterID=" + arr.get(i) + " OR ";
@@ -508,7 +508,7 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.courseId, AVG(P.gradeInCourse) AS avgGrade "
+			sql = "SELECT CC.courseId, AVG(P.gradeInCourse) AS avgGrade "
 					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.classId="
 					+ arr.get(0) + " AND (";
 
@@ -520,9 +520,22 @@ public class SchoolServer extends AbstractServer
 
 			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " + " GROUP BY CC.courseId;";
 
+			//TEST QUERY
+			/*sql = "SELECT CC.classId, AVG(P.gradeInCourse) AS avgGrade "
+					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.teacherId="
+					+ arr.remove(0) + " AND (";
+
+			for (int i = 0; i < arr.size(); i++)
+				sql += "S.SemesterID=" + arr.get(i) + " OR ";
+
+			if (sql.endsWith("OR "))
+				sql = sql.substring(0, sql.length() - 3);
+			sql += ") AND CC.courseId=S.ActivityID AND CC.courseId=P.courseID " + " GROUP BY CC.classId;";
+
+			System.out.println("\nSQL: " + sql + "\n");*/
+			
 			System.out.println("\nSQL: " + sql + "\n");
 			ResultSet rs = stmt.executeQuery(sql);
-			// need to change "is Logged" field!!!
 
 			ResultSetMetaData metaData = rs.getMetaData();
 			int count = metaData.getColumnCount(); // number of column
