@@ -378,7 +378,12 @@ public class SchoolServer extends AbstractServer
 				return null;
 			}
 
-			sql = "SELECT S.SemesterID, CC.classId, AVG(P.gradeInCourse) AS avgGrade "
+			/*sql = "SELECT S.SemesterID, CC.classId, AVG(P.gradeInCourse) AS avgGrade "
+					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.teacherId="
+					+ arr.remove(0) + " AND (";*/
+			
+			//TEST QUERY
+			sql = "SELECT CC.classId, AVG(P.gradeInCourse) AS avgGrade "
 					+ " FROM course_in_class CC, activity_in_semester S, pupil_in_course P " + " WHERE CC.teacherId="
 					+ arr.remove(0) + " AND (";
 
